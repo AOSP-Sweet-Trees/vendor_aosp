@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/google/blueprint"
-	"github.com/google/blueprint/bootstrap"
 	"github.com/google/blueprint/proptools"
 
 	"android/soong/android"
@@ -152,7 +151,7 @@ func (g *Module) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 				var path android.OptionalPath
 
 				if t, ok := module.(HostToolProvider); ok {
-					if !t.(android.Module).Enabled() {
+					if !t.(android.Module).Enabled(ctx) {
 						if ctx.Config().AllowMissingDependencies() {
 							ctx.AddMissingDependencies([]string{tool})
 						} else {
@@ -161,13 +160,6 @@ func (g *Module) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 						break
 					}
 					path = t.HostToolPath()
-				} else if t, ok := module.(bootstrap.GoBinaryTool); ok {
-					if s, err := filepath.Rel(android.PathForOutput(ctx).String(), t.InstallPath()); err == nil {
-						path = android.OptionalPathForPath(android.PathForOutput(ctx, s))
-					} else {
-						ctx.ModuleErrorf("cannot find path for %q: %v", tool, err)
-						break
-					}
 				} else {
 					ctx.ModuleErrorf("%q is not a host tool provider", tool)
 					break

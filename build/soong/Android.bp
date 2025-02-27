@@ -42,6 +42,22 @@ custom_generator {
     ],
 }
 
+bootstrap_go_package {
+    name: "soong-aosp-mkdir",
+    pkgPath: "aosp/soong/mkdir",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+    ],
+    srcs: [
+        "mkdir/init.go",
+        "mkdir/mkdir.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
 cc_defaults {
     name: "generated_kernel_header_defaults",
     generated_headers: ["generated_kernel_includes"],
@@ -61,26 +77,6 @@ cc_library_headers {
 }
 
 // Target platform agnostic config modules
-soong_config_module_type {
-    name: "aapt_version_code",
-    module_type: "java_defaults",
-    config_namespace: "customGlobalVars",
-    value_variables: ["aapt_version_code"],
-    properties: ["aaptflags"],
-}
-
-aapt_version_code {
-    name: "aapt_version_code_defaults",
-    soong_config_variables: {
-        aapt_version_code: {
-            aaptflags: [
-                "--version-code",
-                "%s",
-            ],
-        },
-    },
-}
-
 soong_config_module_type {
     name: "camera_override_format_from_reserved",
     module_type: "cc_defaults",
@@ -482,6 +478,7 @@ soong_config_module_type {
     bool_variables: ["uses_oplus_camera"],
     properties: ["cppflags"],
 }
+
 uses_oplus_camera {
     name: "uses_oplus_camera_defaults",
     soong_config_variables: {
@@ -521,6 +518,27 @@ qcom_libfmjni {
     soong_config_variables: {
         no_fm_firmware: {
             cflags: ["-DQCOM_NO_FM_FIRMWARE"],
+        },
+    },
+}
+
+soong_config_module_type {
+    name: "libcameraservice_ext_lib",
+    module_type: "cc_defaults",
+    config_namespace: "customGlobalVars",
+    value_variables: ["target_libcameraservice_ext_lib"],
+    properties: [
+        "cppflags",
+        "whole_static_libs",
+    ],
+}
+
+libcameraservice_ext_lib {
+    name: "libcameraservice_ext_lib_defaults",
+    soong_config_variables: {
+        target_libcameraservice_ext_lib: {
+            cppflags: ["-DTARGET_PROVIDES_CAMERA_PROVIDER_EXT_LIB"],
+            whole_static_libs: ["%s"],
         },
     },
 }
